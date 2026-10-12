@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="張語真的個人成果網站：作品展示、AI 數值方法課程作業與上課筆記。">
+<title>張語真</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;800&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: 一頁式課程筆記本 — 方格紙底、頁首放姓名與牛頓法公式，下方兩個分頁（作業／上課內容），每筆可點開 */
+:root{
+  --bg:#f3f5f7; --paper:#ffffff; --grid:rgba(30,70,110,.07);
+  --fg:#18222d; --muted:#5d6b78; --line:#d9e0e7;
+  --ink:#1f5f8b; --ink-soft:#e3eef6; --mark:#b4532a;
+  --ok:#2f7d4f; --ok-soft:#e1f1e7; --warn:#a86a10; --warn-soft:#f8ecd6;
+  --f-display:"Noto Serif TC","Songti TC",serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11161c; --paper:#171e26; --grid:rgba(140,180,220,.06);
+  --fg:#e4eaf0; --muted:#93a1ae; --line:#2a3440;
+  --ink:#7cb7e0; --ink-soft:#1c2b39; --mark:#e08a62;
+  --ok:#7cc89a; --ok-soft:#18301f; --warn:#e2b25c; --warn-soft:#33280f; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11161c; --paper:#171e26; --grid:rgba(140,180,220,.06);
+  --fg:#e4eaf0; --muted:#93a1ae; --line:#2a3440;
+  --ink:#7cb7e0; --ink-soft:#1c2b39; --mark:#e08a62;
+  --ok:#7cc89a; --ok-soft:#18301f; --warn:#e2b25c; --warn-soft:#33280f; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.7;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px}
+.wrap{max-width:860px;margin:0 auto;padding-inline:16px;padding-block:40px 64px}
+header{display:grid;gap:10px;padding-bottom:24px;border-bottom:2px solid var(--fg)}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(40px,9vw,64px);line-height:1.1;margin:0;letter-spacing:.06em;text-wrap:balance}
+.sub{margin:0;color:var(--muted);font-size:16px}
+.formula{font-family:var(--f-mono);font-size:14px;color:var(--ink);background:var(--paper);border:1px solid var(--line);
+  padding:8px 12px;justify-self:start;max-width:100%;overflow-x:auto;white-space:nowrap}
+.formula i{color:var(--mark);font-style:normal}
+nav{display:flex;gap:4px;margin-top:28px;flex-wrap:wrap}
+nav button{font:inherit;font-weight:700;font-size:15px;border:1px solid var(--line);border-bottom:none;background:transparent;color:var(--muted);
+  padding:10px 18px;cursor:pointer;display:flex;gap:8px;align-items:center}
+nav button[aria-selected="true"]{background:var(--paper);color:var(--fg);border-color:var(--fg);border-width:2px 2px 0}
+nav button:focus-visible,.item summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.count{font-family:var(--f-mono);font-size:12px;background:var(--ink-soft);color:var(--ink);padding:0 7px;border-radius:9px}
+.panel{background:var(--paper);border:2px solid var(--fg);padding:8px 0;margin-top:-2px}
+.list{list-style:none;margin:0;padding:0}
+.item{border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:none}
+.item summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:baseline;padding:14px 20px}
+.item summary::-webkit-details-marker{display:none}
+.item summary:hover{background:var(--ink-soft)}
+.no{font-family:var(--f-mono);font-weight:600;color:var(--mark);font-size:14px;font-variant-numeric:tabular-nums}
+.ttl{min-width:0;font-weight:700;font-size:16px}
+.meta{display:block;font-weight:400;font-size:13px;color:var(--muted);font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.pill{font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.pill.todo{background:var(--warn-soft);color:var(--warn)}
+.pill.done{background:var(--ok-soft);color:var(--ok)}
+.pill.note{background:var(--ink-soft);color:var(--ink)}
+.body{padding:0 20px 18px 98px;min-width:0}
+.body p{margin:0 0 10px;max-width:65ch;white-space:pre-wrap;overflow-wrap:anywhere}
+.body a{color:var(--ink)}
+.body pre{font-family:var(--f-mono);font-size:13px;background:var(--bg);border:1px solid var(--line);padding:10px 12px;overflow-x:auto;margin:0 0 10px}
+.links{display:flex;flex-wrap:wrap;gap:8px}
+.links a{font-size:13px;font-weight:500;border:1px solid var(--ink);padding:3px 10px;text-decoration:none}
+.links a:hover{background:var(--ink);color:var(--paper)}
+.empty{padding:36px 20px;text-align:left;color:var(--muted)}
+.empty strong{display:block;color:var(--fg);font-size:16px;margin-bottom:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;padding:12px 20px}
+.grid:empty{display:none}
+.card{border:1px solid var(--line);background:var(--paper);min-width:0}
+.card summary{list-style:none;cursor:pointer;display:grid;gap:6px;padding:16px}
+.card summary::-webkit-details-marker{display:none}
+.card summary:hover{background:var(--ink-soft)}
+.card summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.card[open]{grid-column:1/-1;border-color:var(--ink)}
+.card .cat{font-family:var(--f-mono);font-size:12px;color:var(--mark);letter-spacing:.06em}
+.card .ttl{font-family:var(--f-display);font-weight:600;font-size:18px;line-height:1.4}
+.card .tags{display:flex;flex-wrap:wrap;gap:6px}
+.card .tags span{font-size:12px;background:var(--ink-soft);color:var(--ink);padding:1px 8px}
+.card .body{padding:0 16px 16px}
+footer{margin-top:20px;font-size:13px;color:var(--muted)}
+@media (max-width:560px){
+  .item summary{grid-template-columns:1fr auto;gap:4px 10px;padding:12px 16px}
+  .no{grid-column:1/-1}
+  .body{padding:0 16px 16px}
+}
+</style>
+<style>body{margin:0} img{max-width:100%} [hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Portfolio · 個人成果網站</div>
+    <h1>張語真</h1>
+    <p class="sub">個人成果、AI 數值方法課程作業與上課筆記</p>
+    <div class="formula">x<sub>n+1</sub> = x<sub>n</sub> − <i>f(x<sub>n</sub>)</i> / <i>f′(x<sub>n</sub>)</i></div>
+  </header>
+
+  <nav role="tablist">
+    <button role="tab" id="tab-pj" aria-selected="true" data-tab="pj">個人成果 <span class="count" id="c-pj">0</span></button>
+    <button role="tab" id="tab-hw" aria-selected="false" data-tab="hw">作業 <span class="count" id="c-hw">0</span></button>
+    <button role="tab" id="tab-lec" aria-selected="false" data-tab="lec">上課內容 <span class="count" id="c-lec">0</span></button>
+  </nav>
+
+  <section class="panel" id="panel-pj" role="tabpanel">
+    <div class="grid" id="list-pj"></div>
+    <div class="empty" id="empty-pj"><strong>成果整理中</strong>作品、專題與獲獎紀錄即將更新。</div>
+  </section>
+  <section class="panel" id="panel-hw" role="tabpanel" hidden>
+    <ul class="list" id="list-hw"></ul>
+    <div class="empty" id="empty-hw"><strong>作業整理中</strong>AI 數值方法課程作業即將更新。</div>
+  </section>
+  <section class="panel" id="panel-lec" role="tabpanel" hidden>
+    <ul class="list" id="list-lec"></ul>
+    <div class="empty" id="empty-lec"><strong>筆記整理中</strong>每週上課重點即將更新。</div>
+  </section>
+
+  <footer id="foot">點擊任一項目可展開詳細內容。© 2026 張語真</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function linkify(s){return esc(s).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>')}
+function bodyHtml(d){
+  let h="";
+  if(d.content) h+=`<p>${linkify(d.content)}</p>`;
+  if(d.code) h+=`<pre>${esc(d.code)}</pre>`;
+  if(Array.isArray(d.links)&&d.links.length) h+=`<div class="links">${d.links.map(l=>/^https?:\/\//.test(l.url||"")?`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label||l.url)}</a>`:"").join("")}</div>`;
+  return h||`<p style="color:var(--muted)">尚無詳細內容。</p>`;
+}
+function renderHW(docs){
+  $("#c-hw").textContent=docs.length; $("#empty-hw").hidden=docs.length>0;
+  $("#list-hw").innerHTML=docs.map(d=>{
+    const done=d.status==="done";
+    const meta=[d.assigned&&`發布 ${esc(d.assigned)}`, d.due&&`截止 ${esc(d.due)}`].filter(Boolean).join(" · ");
+    return `<li class="item"><details><summary><span class="no">${esc(d.no||"HW")}</span><span class="ttl">${esc(d.title)}${meta?`<span class="meta">${meta}</span>`:""}</span><span class="pill ${done?"done":"todo"}">${done?"已完成":"進行中"}</span></summary><div class="body">${bodyHtml(d)}</div></details></li>`}).join("");
+}
+function renderLec(docs){
+  $("#c-lec").textContent=docs.length; $("#empty-lec").hidden=docs.length>0;
+  $("#list-lec").innerHTML=docs.map(d=>`<li class="item"><details><summary><span class="no">${esc(d.week||"W")}</span><span class="ttl">${esc(d.title)}${d.date?`<span class="meta">${esc(d.date)}</span>`:""}</span><span class="pill note">筆記</span></summary><div class="body">${bodyHtml(d)}</div></details></li>`).join("");
+}
+function renderPj(docs){
+  $("#c-pj").textContent=docs.length; $("#empty-pj").hidden=docs.length>0;
+  $("#list-pj").innerHTML=docs.map(d=>{
+    const top=[d.category,d.date].filter(Boolean).map(esc).join(" · ");
+    const tags=Array.isArray(d.tags)&&d.tags.length?`<div class="tags">${d.tags.map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:"";
+    return `<details class="card"><summary>${top?`<span class="cat">${top}</span>`:""}<span class="ttl">${esc(d.title)}</span>${d.summary?`<span style="color:var(--muted);font-size:14px">${esc(d.summary)}</span>`:""}${tags}</summary><div class="body">${bodyHtml(d)}</div></details>`}).join("");
+}
+const tabs=["pj","hw","lec"];
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  tabs.forEach(t=>$("#panel-"+t).hidden=b.dataset.tab!==t);
+  try{localStorage.setItem("tab2",b.dataset.tab)}catch(e){}
+}));
+try{const t=localStorage.getItem("tab2"); if(tabs.includes(t)) $("#tab-"+t).click();}catch(e){}
+const hashTab={"#portfolio":"pj","#homework":"hw","#lectures":"lec"}[location.hash]; if(hashTab) $("#tab-"+hashTab).click();
+
+// ===== 網站內容：要新增項目就加在這三個清單裡 =====
+const PROJECTS = [];
+const ASSIGNMENTS = [];
+const LECTURES = [];
+const byOrder = a => [...a].sort((x,y)=>(x.order??0)-(y.order??0));
+renderPj(byOrder(PROJECTS)); renderHW(byOrder(ASSIGNMENTS)); renderLec(byOrder(LECTURES));
+</script>
+
+</body>
+</html>
