@@ -578,5 +578,12 @@ a00f3a9aa766a425d0e0d978cad604362dfdab03  refs/heads/main</code></pre></figure>
 })();
 </script>
 
+<script>
+// 開啟頁面時自動填入本次作答結果並評分
+window.addEventListener("load", () => {
+  document.querySelectorAll(".grader button.fill").forEach(b => b.click());
+  const g5 = document.querySelector('.grader button.go[data-q="5"]'); if (g5) g5.click();
+});
+</script>
 </body>
 </html>
