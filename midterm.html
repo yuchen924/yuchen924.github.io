@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI數值方法(一) 期中考 — 張語真 413210518</title>
+<style>
+  :root {
+    --bg:#f6f5f1; --paper:#ffffff; --ink:#1d1d1b; --muted:#6b6a65; --line:#e3e1da;
+    --accent:#2f5d8a; --code-bg:#1f2329; --code-ink:#e6e6e6; --ok:#2e7d4f;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif; line-height:1.7; }
+  .wrap { max-width:880px; margin:0 auto; padding:48px 20px 80px; }
+  header { background:var(--paper); border:1px solid var(--line); border-top:6px solid var(--accent);
+    border-radius:10px; padding:32px 32px 28px; margin-bottom:56px; }
+  header .label { font-size:15px; letter-spacing:.12em; color:var(--muted); margin:0 0 6px; }
+  header h1 { font-size:34px; margin:0 0 18px; line-height:1.3; }
+  .meta { display:flex; flex-wrap:wrap; gap:12px 36px; font-size:22px; font-weight:600; margin:0; }
+  .meta div span { color:var(--muted); font-weight:500; }
+  .score { display:inline-block; min-width:90px; border-bottom:2px solid var(--ink); text-align:center; }
+  section.q { background:var(--paper); border:1px solid var(--line); border-radius:10px;
+    padding:28px 32px 30px; margin-bottom:64px; }
+  section.q h2 { font-size:20px; margin:0 0 6px; color:var(--accent); }
+  .prompt { font-size:17px; margin:0 0 22px; padding:12px 16px; background:#f1f4f8; border-left:4px solid var(--accent); border-radius:4px; }
+  h3 { font-size:16px; margin:26px 0 10px; }
+  p, li { font-size:15.5px; }
+  figure.code { margin:14px 0 18px; }
+  figure.code figcaption { font-size:13px; color:var(--muted); margin-bottom:6px; font-family:ui-monospace,Menlo,Consolas,monospace; }
+  pre { margin:0; background:var(--code-bg); color:var(--code-ink); border-radius:8px; padding:16px 18px;
+    overflow-x:auto; font-size:13.5px; line-height:1.6; font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace; }
+  table { border-collapse:collapse; width:100%; font-size:15px; margin:10px 0 16px; }
+  th, td { border:1px solid var(--line); padding:8px 12px; text-align:right; }
+  th { background:#f3f2ee; text-align:center; }
+  td.ok { color:var(--ok); font-weight:700; text-align:center; }
+  @media (max-width:600px) { header, section.q { padding:22px 18px; } header h1 { font-size:28px; } .meta { font-size:19px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="label">期中考 · 程式作答</p>
+  <h1>AI數值方法(一)</h1>
+  <div class="meta">
+    <div><span>姓名：</span>張語真</div>
+    <div><span>學號：</span>413210518</div>
+    <div><span>得分數：</span><span class="score">&nbsp;</span></div>
+  </div>
+</header>
+
+<section class="q" id="q1">
+  <h2>第 1 題</h2>
+  <p class="prompt">輸出一個能做 1 加到 N 的 Fortran 程式。</p>
+  <h3>答案</h3>
+  <p>程式讀入 N 後，先用 <code>do</code> 迴圈逐項累加，再用公式 N(N+1)/2 驗算。總和使用 64 位元整數 <code>integer(kind=8)</code>，避免 N 較大時溢位。</p>
+  <figure class="code"><figcaption>sum_to_n.f90（v1 原版）</figcaption><pre><code>program sum_to_n
+    implicit none
+    integer :: n, i
+    integer(kind=8) :: total
+
+    write(*, &#x27;(A)&#x27;, advance=&#x27;no&#x27;) &#x27;請輸入 N: &#x27;
+    read(*, *) n
+
+    if (n &lt; 1) then
+        write(*, *) &#x27;N 必須是正整數&#x27;
+        stop
+    end if
+
+    ! 方法一：用迴圈累加
+    total = 0
+    do i = 1, n
+        total = total + i
+    end do
+    write(*, &#x27;(A, I0, A, I0)&#x27;) &#x27;1 加到 &#x27;, n, &#x27; 的總和 (迴圈) = &#x27;, total
+
+    ! 方法二：用公式 N(N+1)/2 驗算
+    total = int(n, 8) * (int(n, 8) + 1) / 2
+    write(*, &#x27;(A, I0)&#x27;) &#x27;公式 N(N+1)/2 驗算        = &#x27;, total
+
+end program sum_to_n</code></pre></figure>
+</section>
+
+<section class="q" id="q2">
+  <h2>第 2 題</h2>
+  <p class="prompt">執行 Fortran 程式進行三次隨機的驗證，以確定該程式功能的正確性。</p>
+  <h3>答案</h3>
+  <p>先用 Python 隨機產生三個 N，並以公式算出正確答案：</p>
+  <figure class="code"><figcaption>random_n.py</figcaption><pre><code>import random
+for n in random.sample(range(1, 2_000_000), 3):
+    print(n, n * (n + 1) // 2)   # 隨機 N 與公式算出的正確答案</code></pre></figure>
+  <p>以 gfortran 15.2 編譯執行，三次的輸出如下：</p>
+  <figure class="code"><figcaption>執行結果</figcaption><pre><code>$ ./sum_to_n
+請輸入 N: 1366727
+1 加到 1366727 的總和 (迴圈) = 933972029628
+公式 N(N+1)/2 驗算        = 933972029628
+
+$ ./sum_to_n
+請輸入 N: 1970810
+1 加到 1970810 的總和 (迴圈) = 1942047013455
+公式 N(N+1)/2 驗算        = 1942047013455
+
+$ ./sum_to_n
+請輸入 N: 109763
+1 加到 109763 的總和 (迴圈) = 6024012966
+公式 N(N+1)/2 驗算        = 6024012966</code></pre></figure>
+  <table>
+    <tr><th>隨機 N</th><th>迴圈結果</th><th>公式結果</th><th>正確答案</th><th>判定</th></tr>
+    <tr><td>1,366,727</td><td>933,972,029,628</td><td>933,972,029,628</td><td>933,972,029,628</td><td class="ok">✓</td></tr>
+    <tr><td>1,970,810</td><td>1,942,047,013,455</td><td>1,942,047,013,455</td><td>1,942,047,013,455</td><td class="ok">✓</td></tr>
+    <tr><td>109,763</td><td>6,024,012,966</td><td>6,024,012,966</td><td>6,024,012,966</td><td class="ok">✓</td></tr>
+  </table>
+  <p>三次結果皆與正確答案相符。三個總和都超過 32 位元整數上限（約 21 億），也證明程式沒有溢位問題。</p>
+</section>
+
+<section class="q" id="q3">
+  <h2>第 3 題</h2>
+  <p class="prompt">針對所開發的程式進行 Git 版本控制，將原版認錄（commit），之後針對原程式碼進行逐行註解並編譯驗證成功後，再次認錄為新版。</p>
+  <h3>答案</h3>
+  <p>操作步驟：</p>
+  <figure class="code"><figcaption>Git 指令</figcaption><pre><code># 1. 建立儲存庫並認錄原版
+git init -b main
+git add sum_to_n.f90
+git commit -m &quot;v1: 原版 1 加到 N 程式&quot;
+
+# 2. 加入逐行註解後，編譯驗證
+gfortran -Wall sum_to_n.f90 -o sum_to_n   # 無錯誤、無警告
+./sum_to_n                                # 三組隨機 N 皆正確
+
+# 3. 認錄為新版
+git add sum_to_n.f90
+git commit -m &quot;v2: 加入逐行中文註解&quot;
+
+# 4. 查看版本紀錄
+git log --oneline</code></pre></figure>
+  <p>版本紀錄：</p>
+  <figure class="code"><figcaption>git log --oneline</figcaption><pre><code>a00f3a9 v2: 加入逐行中文註解
+aef7f37 v1: 原版 1 加到 N 程式</code></pre></figure>
+  <p>加入逐行註解後的新版程式（程式邏輯與 v1 完全相同，只新增註解；以 <code>gfortran -Wall</code> 編譯無錯誤、無警告，三組隨機測試皆正確）：</p>
+  <figure class="code"><figcaption>sum_to_n.f90（v2 加註解版）</figcaption><pre><code>! 宣告主程式，名稱為 sum_to_n
+program sum_to_n
+    ! 關閉隱式型別宣告，所有變數都必須明確宣告
+    implicit none
+    ! 宣告整數 n（使用者輸入的上限）與 i（迴圈計數器）
+    integer :: n, i
+    ! 宣告 64 位元整數 total 存放總和，避免大數溢位
+    integer(kind=8) :: total
+
+    ! 顯示輸入提示；advance=&#x27;no&#x27; 讓游標停在同一行
+    write(*, &#x27;(A)&#x27;, advance=&#x27;no&#x27;) &#x27;請輸入 N: &#x27;
+    ! 從鍵盤讀取 N 的值
+    read(*, *) n
+
+    ! 檢查 N 是否小於 1
+    if (n &lt; 1) then
+        ! 若 N 不合法，印出錯誤訊息
+        write(*, *) &#x27;N 必須是正整數&#x27;
+        ! 結束程式
+        stop
+    ! 結束 if 判斷
+    end if
+
+    ! 方法一：用迴圈累加
+    ! 總和歸零
+    total = 0
+    ! 讓 i 從 1 跑到 n
+    do i = 1, n
+        ! 每次把 i 加進總和
+        total = total + i
+    ! 結束 do 迴圈
+    end do
+    ! 輸出迴圈計算結果；I0 讓整數以最短寬度顯示
+    write(*, &#x27;(A, I0, A, I0)&#x27;) &#x27;1 加到 &#x27;, n, &#x27; 的總和 (迴圈) = &#x27;, total
+
+    ! 方法二：用公式 N(N+1)/2 驗算
+    ! 先把 n 轉成 64 位元整數再相乘，避免乘法溢位
+    total = int(n, 8) * (int(n, 8) + 1) / 2
+    ! 輸出公式計算結果，用來和迴圈結果比對
+    write(*, &#x27;(A, I0)&#x27;) &#x27;公式 N(N+1)/2 驗算        = &#x27;, total
+
+! 結束主程式
+end program sum_to_n</code></pre></figure>
+</section>
+
+</div>
+</body>
+</html>
