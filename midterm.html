@@ -33,6 +33,7 @@
   table { border-collapse:collapse; width:100%; font-size:15px; margin:10px 0 16px; }
   th, td { border:1px solid var(--line); padding:8px 12px; text-align:right; }
   th { background:#f3f2ee; text-align:center; }
+  section.q a { color:var(--accent); word-break:break-all; }
   td.ok { color:var(--ok); font-weight:700; text-align:center; }
   @media (max-width:600px) { header, section.q { padding:22px 18px; } header h1 { font-size:28px; } .meta { font-size:19px; } }
 </style>
@@ -181,6 +182,43 @@ program sum_to_n
 
 ! 結束主程式
 end program sum_to_n</code></pre></figure>
+</section>
+
+<section class="q" id="q4">
+  <h2>第 4 題</h2>
+  <p class="prompt">將本地端已經進行版本控制的程式碼，傳送到 GitHub 做雲端儲存。</p>
+  <h3>答案</h3>
+  <p>雲端儲存庫：<a href="https://github.com/yuchen924/sum_to_n">https://github.com/yuchen924/sum_to_n</a></p>
+  <p>操作步驟：</p>
+  <figure class="code"><figcaption>Git 指令</figcaption><pre><code># 1. 在 GitHub 建立空的公開儲存庫 yuchen924/sum_to_n（不加 README）
+
+# 2. 設定遠端位置
+git remote add origin https://github.com/yuchen924/sum_to_n
+git remote -v
+
+# 3. 把本地的 main 分支（含 v1、v2 兩次認錄）推上 GitHub
+git push -u origin main
+
+# 4. 確認本地與雲端同步
+git status -sb
+git ls-remote origin</code></pre></figure>
+  <p>執行結果：</p>
+  <figure class="code"><figcaption>終端機輸出</figcaption><pre><code>$ git remote -v
+origin  https://github.com/yuchen924/sum_to_n (fetch)
+origin  https://github.com/yuchen924/sum_to_n (push)
+
+$ git push -u origin main
+To https://github.com/yuchen924/sum_to_n
+ * [new branch]      main -&gt; main
+branch &#x27;main&#x27; set up to track &#x27;origin/main&#x27;.
+
+$ git status -sb
+## main...origin/main
+
+$ git ls-remote origin
+a00f3a9aa766a425d0e0d978cad604362dfdab03  HEAD
+a00f3a9aa766a425d0e0d978cad604362dfdab03  refs/heads/main</code></pre></figure>
+  <p>GitHub 上的認錄紀錄與本地完全相同（v1 <code>aef7f37</code>、v2 <code>a00f3a9</code>），本地 <code>main</code> 已與 <code>origin/main</code> 同步，版本歷史完整保存在雲端。</p>
 </section>
 
 </div>
