@@ -60,6 +60,22 @@
   .verdict { font-size:14px; font-weight:700; padding:2px 12px; border-radius:999px; background:#eceae4; color:var(--muted); white-space:nowrap; }
   .verdict.pass { background:#e1f1e7; color:var(--ok); }
   .verdict.fail { background:#fbe3e1; color:#b3261e; }
+
+  .ai { margin-top:22px; border-left:5px solid #7a4fb5; background:#f7f3fc; border-radius:6px; padding:16px 20px 12px; }
+  .ai h4 { margin:0 0 10px; font-size:16px; color:#4b2a7a; display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .ai h4 b { font-size:18px; color:#4b2a7a; font-variant-numeric:tabular-nums; }
+  .ai dl { margin:0; display:grid; grid-template-columns:6.5em 1fr; gap:8px 12px; font-size:14.5px; }
+  .ai dt { font-weight:700; color:#4b2a7a; }
+  .ai dd { margin:0; }
+  .ai dd ul { margin:0; padding-left:1.2em; }
+  .ai dd li { margin:2px 0; }
+  .ai dd li .ded { color:#b3261e; font-weight:700; white-space:nowrap; }
+  .ai-pill { display:inline-block; margin-left:8px; font-size:14px; font-weight:700; color:#fff; background:#7a4fb5;
+    padding:1px 10px; border-radius:999px; vertical-align:middle; }
+  .ai-sum { margin:18px 0 0; font-size:15px; }
+  .ai-sum table { margin:8px 0 0; }
+  .ai-sum td, .ai-sum th { text-align:center; }
+  @media (max-width:600px) { .ai dl { grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
@@ -71,13 +87,14 @@
   <div class="meta">
     <div><span>姓名：</span>張語真</div>
     <div><span>學號：</span>413210518</div>
-    <div><span>得分數：</span><span class="score score-big"><span id="total">0</span> / 100</span></div>
+    <div><span>得分數：</span><span class="score score-big">72 / 100</span><span style="font-size:14px;color:var(--muted);font-weight:500;margin-left:6px">（AI 評分）</span></div>
   </div>
+  <div class="ai-sum"><table><tr><th>題目</th><th>第 1 題</th><th>第 2 題</th><th>第 3 題</th><th>第 4 題</th><th>第 5 題</th><th>總分</th></tr><tr><td>AI 評分</td><td>14 / 20</td><td>13 / 20</td><td>17 / 20</td><td>15 / 20</td><td>13 / 20</td><td><b>72 / 100</b></td></tr></table></div>
 </header>
 
 <section class="q" id="q1">
-  <h2>第 1 題<span class="pts">20 分</span></h2>
-  <p class="prompt">輸出一個能做 1 加到 N 的 Fortran 程式。</p>
+  <h2>第 1 題<span class="pts">20 分</span><span class="ai-pill">AI 評分 14 / 20</span></h2>
+  <p class="prompt">指揮AI輸出一個能做 1 加到 N 的 Fortran 程式並完成編譯，確認可以成功執行計算並輸出結果。（20分）</p>
   <h3>答案</h3>
   <p>程式讀入 N 後，先用 <code>do</code> 迴圈逐項累加，再用公式 N(N+1)/2 驗算。總和使用 64 位元整數 <code>integer(kind=8)</code>，避免 N 較大時溢位。</p>
   <figure class="code"><figcaption>sum_to_n.f90（v1 原版）</figcaption><pre><code>program sum_to_n
@@ -113,11 +130,21 @@ end program sum_to_n</code></pre></figure>
     <div class="btns"><button class="go" data-q="1">評分</button><button class="fill" data-fill="1">填入本次作答結果</button></div>
     <ul class="checks" id="c1"></ul>
   </div>
+  
+  <div class="ai">
+    <h4>AI 評分<b>14 / 20</b></h4>
+    <dl>
+      <dt>題目</dt><dd>指揮AI輸出一個能做 1 加到 N 的 Fortran 程式並完成編譯，確認可以成功執行計算並輸出結果。（20分）</dd>
+      <dt>答題過程</dt><dd>學生指令「輸出一個能做 1 加到 N 的 Fortran 程式」。AI 寫出程式後嘗試編譯，但工作環境沒有 gfortran，於是交出未經編譯的程式，並說明尚未測試；學生接著問如何執行，AI 提供線上編譯器與安裝 gfortran 的方法。</dd>
+      <dt>做得好的地方</dt><dd>程式邏輯正確：使用 implicit none，總和用 64 位元整數避免溢位，檢查 N 是否為正整數，並用迴圈與公式 N(N+1)/2 兩種方法交叉驗算。</dd>
+      <dt>AI 的失誤<br>（扣分）</dt><dd><ul><li>題目要求「完成編譯，確認可以成功執行」，AI 在本題沒有完成編譯和執行，只交出未經測試的程式。 <span class="ded">−4</span></li><li>v1 原版從頭到尾沒有被直接編譯過；之後的編譯執行都是對第 3 題的 v2 加註解版，只能間接證明 v1 正確。 <span class="ded">−1</span></li><li>N 用預設的 32 位元整數宣告，輸入超過 2,147,483,647 或輸入非數字時，程式會直接中止，沒有用 iostat 處理錯誤。 <span class="ded">−1</span></li></ul></dd>
+    </dl>
+  </div>
 </section>
 
 <section class="q" id="q2">
-  <h2>第 2 題<span class="pts">20 分</span></h2>
-  <p class="prompt">執行 Fortran 程式進行三次隨機的驗證，以確定該程式功能的正確性。</p>
+  <h2>第 2 題<span class="pts">20 分</span><span class="ai-pill">AI 評分 13 / 20</span></h2>
+  <p class="prompt">指揮AI執行該程式進行三次隨機的驗證，以確定該程式功能的正確性。（20分）</p>
   <h3>答案</h3>
   <p>先用 Python 隨機產生三個 N，並以公式算出正確答案：</p>
   <figure class="code"><figcaption>random_n.py</figcaption><pre><code>import random
@@ -153,11 +180,21 @@ $ ./sum_to_n
     <div class="btns"><button class="go" data-q="2">評分</button><button class="fill" data-fill="2">填入本次作答結果</button></div>
     <ul class="checks" id="c2"></ul>
   </div>
+  
+  <div class="ai">
+    <h4>AI 評分<b>13 / 20</b></h4>
+    <dl>
+      <dt>題目</dt><dd>指揮AI執行該程式進行三次隨機的驗證，以確定該程式功能的正確性。（20分）</dd>
+      <dt>答題過程</dt><dd>學生指令「執行fortran程式進行三次隨機的驗證」。AI 用 Python 隨機產生三個 N 並算好標準答案，接著想把程式上傳到線上編譯器 Compiler Explorer 執行，但被系統以「上傳到公開服務」擋下。AI 詢問是否同意上傳，學生改要程式碼自己執行，因此本題當下沒有執行結果。三次實際執行，是到第 3 題取得上傳同意後，才對 v2 版本完成。</dd>
+      <dt>做得好的地方</dt><dd>三個隨機 N 都很大，總和都超過 32 位元整數的上限，同時驗證了不會溢位；三組結果都等於 N(N+1)/2。</dd>
+      <dt>AI 的失誤<br>（扣分）</dt><dd><ul><li>本題當下 AI 沒有完成執行，等於把驗證工作交回給學生。 <span class="ded">−3</span></li><li>實際驗證的是第 3 題的 v2 加註解版，不是本題指的「該程式」v1 原版。 <span class="ded">−2</span></li><li>網頁上的「執行結果」經過改寫：實際輸出是「請輸入 N: 1 加到 1366727 的總和…」接在同一行，網頁卻寫成像是在終端機輸入 N 後換行，與真實輸出不一致。 <span class="ded">−2</span></li></ul></dd>
+    </dl>
+  </div>
 </section>
 
 <section class="q" id="q3">
-  <h2>第 3 題<span class="pts">20 分</span></h2>
-  <p class="prompt">針對所開發的程式進行 Git 版本控制，將原版認錄（commit），之後針對原程式碼進行逐行註解並編譯驗證成功後，再次認錄為新版。</p>
+  <h2>第 3 題<span class="pts">20 分</span><span class="ai-pill">AI 評分 17 / 20</span></h2>
+  <p class="prompt">針對所開發的程式進行 Git 版本控制，將原版認錄（commit），之後指揮 AI 針對原程式碼進行逐行註解並編譯驗證成功後，再次認錄為新版。（20分）</p>
   <h3>答案</h3>
   <p>操作步驟：</p>
   <figure class="code"><figcaption>Git 指令</figcaption><pre><code># 1. 建立儲存庫並認錄原版
@@ -230,11 +267,21 @@ end program sum_to_n</code></pre></figure>
     <div class="btns"><button class="go" data-q="3">評分</button><button class="fill" data-fill="3">填入本次作答結果</button></div>
     <ul class="checks" id="c3"></ul>
   </div>
+  
+  <div class="ai">
+    <h4>AI 評分<b>17 / 20</b></h4>
+    <dl>
+      <dt>題目</dt><dd>針對所開發的程式進行 Git 版本控制，將原版認錄（commit），之後指揮 AI 針對原程式碼進行逐行註解並編譯驗證成功後，再次認錄為新版。（20分）</dd>
+      <dt>答題過程</dt><dd>學生下指令後，AI 建立 Git 儲存庫並認錄 v1，接著在每一行程式碼上方加入中文註解。AI 比對確認程式碼本體沒有改變，每行也沒有超過 Fortran 132 字元的限制。因為工作環境沒有編譯器，AI 詢問學生同意後上傳到 Compiler Explorer，用 gfortran 15.2（-Wall）編譯，並以三組隨機 N 執行，通過後才認錄 v2，最後交付 .f90 檔和儲存庫壓縮檔。</dd>
+      <dt>做得好的地方</dt><dd>步驟順序完全符合題目要求（認錄 → 註解 → 編譯驗證 → 再認錄）；編譯沒有錯誤也沒有警告；兩次 commit 訊息清楚，v2 的訊息還記錄了驗證結果。</dd>
+      <dt>AI 的失誤<br>（扣分）</dt><dd><ul><li>認錄者姓名「wendy」是 AI 自行假設的，沒有先問學生。 <span class="ded">−1</span></li><li>網頁列出的 Git 指令是簡化版：實際用的是 git commit -F，且訊息含 AI 共同作者標記，網頁卻寫成 git commit -m &quot;v1…&quot;，與實際操作不一致。 <span class="ded">−1</span></li><li>儲存庫建在 AI 的雲端工作區，不在學生自己的電腦上，學生手邊沒有這份版本紀錄。 <span class="ded">−1</span></li></ul></dd>
+    </dl>
+  </div>
 </section>
 
 <section class="q" id="q4">
-  <h2>第 4 題<span class="pts">20 分</span></h2>
-  <p class="prompt">將本地端已經進行版本控制的程式碼，傳送到 GitHub 做雲端儲存。</p>
+  <h2>第 4 題<span class="pts">20 分</span><span class="ai-pill">AI 評分 15 / 20</span></h2>
+  <p class="prompt">將本地端已經進行版本控制的程式碼，傳送到 Github 做雲端儲存。（20分）</p>
   <h3>答案</h3>
   <p>雲端儲存庫：<a href="https://github.com/yuchen924/sum_to_n">https://github.com/yuchen924/sum_to_n</a></p>
   <p>操作步驟：</p>
@@ -275,11 +322,21 @@ a00f3a9aa766a425d0e0d978cad604362dfdab03  refs/heads/main</code></pre></figure>
     <div class="btns"><button class="go" data-q="4">評分</button><button class="fill" data-fill="4">填入本次作答結果</button></div>
     <ul class="checks" id="c4"></ul>
   </div>
+  
+  <div class="ai">
+    <h4>AI 評分<b>15 / 20</b></h4>
+    <dl>
+      <dt>題目</dt><dd>將本地端已經進行版本控制的程式碼，傳送到 Github 做雲端儲存。（20分）</dd>
+      <dt>答題過程</dt><dd>學生下指令後，AI 發現沒有 GitHub 授權，請學生連結 GitHub 帳號。用 API 建立儲存庫被拒後，AI 改用瀏覽器開好「建立儲存庫」頁面，由學生按下建立。推送又因為沒有安裝 Claude GitHub App 被拒，AI 再請學生安裝。之後 git push 成功，AI 用 git ls-remote 和 GitHub API 確認雲端有兩次認錄，而且與本地相同。</dd>
+      <dt>做得好的地方</dt><dd>推上去的是完整的版本歷史：雲端的兩個認錄編號（aef7f37、a00f3a9）和本地一模一樣，不是重新上傳檔案。本地 main 也已經與 origin/main 同步。</dd>
+      <dt>AI 的失誤<br>（扣分）</dt><dd><ul><li>「本地端」其實是 AI 的雲端工作區，不是學生的電腦；學生電腦上沒有這份儲存庫。 <span class="ded">−2</span></li><li>網頁上的推送輸出經過刪減：實際輸出有「fatal: expected &#x27;acknowledgments&#x27;, received &#x27;packfile&#x27;」和「warning: push negotiation failed」兩行，網頁沒有列出。 <span class="ded">−2</span></li><li>第一次給的授權連結失效，學生得自己去找 Connectors 頁面；整個過程需要學生介入 3 次（連結帳號、建立儲存庫、安裝 App），AI 沒有事先說清楚。 <span class="ded">−1</span></li></ul></dd>
+    </dl>
+  </div>
 </section>
 
 <section class="q" id="q5">
-  <h2>第 5 題<span class="pts">20 分</span></h2>
-  <p class="prompt">做一個任務達成評分系統，允許輸入前四題的結果，達標就給分，每題 20 分，並在每題後面標示配分。</p>
+  <h2>第 5 題<span class="pts">20 分</span><span class="ai-pill">AI 評分 13 / 20</span></h2>
+  <p class="prompt">要求AI做一個任務達成評分系統，允許輸入前四題的結果，達標就給分。（20分）</p>
   <h3>答案</h3>
   <p>本頁每一題下方的「任務達成評分」區就是這個系統。輸入該題的結果後按「評分」，系統依規則逐項檢查，全部通過即給 20 分，頁首「得分數」即時加總（5 題共 100 分）。</p>
   <table>
@@ -290,6 +347,7 @@ a00f3a9aa766a425d0e0d978cad604362dfdab03  refs/heads/main</code></pre></figure>
     <tr><td style="text-align:center">4</td><td style="text-align:left">GitHub 儲存庫網址</td><td style="text-align:left">連線 GitHub 確認儲存庫存在且至少兩次認錄（離線時檢查 git push 輸出）</td></tr>
     <tr><td style="text-align:center">5</td><td style="text-align:left">（自動）</td><td style="text-align:left">自我測試：第 1～4 題的正確答案皆達標、錯誤答案皆不達標，且每題標示 20 分</td></tr>
   </table>
+  <p>評分系統即時總分：<strong><span id="total">0</span> / 100</strong>（依各題「任務達成評分」結果加總）</p>
   <p>評分系統程式碼（JavaScript，內嵌於本頁）：</p>
   <figure class="code"><figcaption>grader.js</figcaption><pre><code>(function(){
   const $ = id =&gt; document.getElementById(id);
@@ -400,6 +458,16 @@ a00f3a9aa766a425d0e0d978cad604362dfdab03  refs/heads/main</code></pre></figure>
     <label>自我測試範圍</label><p class="hint" style="margin:0">第 1～4 題各一組正確答案（應達標）與一組錯誤答案（應不達標），共 8 個測試案例，以及題號旁的配分標示。</p>
     <div class="btns"><button class="go" data-q="5">評分</button></div>
     <ul class="checks" id="c5"></ul>
+  </div>
+  
+  <div class="ai">
+    <h4>AI 評分<b>13 / 20</b></h4>
+    <dl>
+      <dt>題目</dt><dd>要求AI做一個任務達成評分系統，允許輸入前四題的結果，達標就給分。（20分）</dd>
+      <dt>答題過程</dt><dd>學生指令「做一個任務達成評分系統，允許輸入前四題的結果，達標就給分」。AI 在每一題下方加入評分區，用規則比對輸入內容，達標給 20 分；學生要求第 5 題也納入後，AI 加上自我測試。AI 一度把評分系統算出的分數放到頁首的「得分數」，後來學生指正，頁首應該放 AI 評分。</dd>
+      <dt>做得好的地方</dt><dd>可以輸入前四題的結果、自動判斷是否達標並給分；第 4 題會實際連到 GitHub 查認錄次數；故意輸入錯誤答案時，會正確判為不達標。</dd>
+      <dt>AI 的失誤<br>（扣分）</dt><dd><ul><li>誤解頁首「得分數」的意思，把自動評分系統算出的分數放上去，要學生來糾正。 <span class="ded">−2</span></li><li>評分規則多半只比對關鍵字，容易被騙：第 2 題只檢查輸入的數字是否符合公式，不會真的執行程式；第 3 題只要註解行數夠多就通過。 <span class="ded">−2</span></li><li>第 1 題的達標條件「必須使用 64 位元整數」不是題目的要求，是 AI 自己加上的標準。 <span class="ded">−1</span></li><li>「填入本次作答結果」按鈕讓評分變成一鍵滿分；第 5 題又用 AI 自己寫的測試來評自己，有球員兼裁判的問題。 <span class="ded">−2</span></li></ul></dd>
+    </dl>
   </div>
 </section>
 
