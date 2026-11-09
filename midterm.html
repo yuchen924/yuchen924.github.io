@@ -36,6 +36,30 @@
   section.q a { color:var(--accent); word-break:break-all; }
   td.ok { color:var(--ok); font-weight:700; text-align:center; }
   @media (max-width:600px) { header, section.q { padding:22px 18px; } header h1 { font-size:28px; } .meta { font-size:19px; } }
+
+  .pts { display:inline-block; margin-left:10px; font-size:14px; font-weight:700; color:#fff; background:var(--accent);
+    padding:1px 10px; border-radius:999px; vertical-align:middle; }
+  .score-big { font-variant-numeric:tabular-nums; }
+  .grader { margin-top:26px; border:2px dashed #c9d4e0; border-radius:10px; padding:18px 20px 16px; background:#fafbfd; }
+  .grader h4 { margin:0 0 4px; font-size:16px; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+  .grader .hint { margin:0 0 12px; font-size:14px; color:var(--muted); }
+  .grader label { display:block; font-size:14px; font-weight:600; margin:10px 0 4px; }
+  .grader input, .grader textarea { width:100%; font:13.5px ui-monospace,Menlo,Consolas,monospace; padding:8px 10px;
+    border:1px solid #cfd6de; border-radius:6px; background:#fff; color:var(--ink); }
+  .grader textarea { min-height:110px; resize:vertical; }
+  .grader .row3 { display:grid; grid-template-columns:1fr 1.4fr; gap:6px 10px; align-items:center; }
+  .grader .row3 span { font-size:13px; color:var(--muted); }
+  .grader .btns { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .grader button { font:inherit; font-size:14px; font-weight:600; padding:7px 16px; border-radius:6px; cursor:pointer; border:1px solid var(--accent); }
+  .grader button.go { background:var(--accent); color:#fff; }
+  .grader button.fill { background:#fff; color:var(--accent); }
+  .grader ul.checks { list-style:none; padding:0; margin:12px 0 0; font-size:14px; }
+  .grader ul.checks li { padding:2px 0; }
+  .grader ul.checks li.ok::before { content:"✓ "; color:var(--ok); font-weight:700; }
+  .grader ul.checks li.no::before { content:"✗ "; color:#b3261e; font-weight:700; }
+  .verdict { font-size:14px; font-weight:700; padding:2px 12px; border-radius:999px; background:#eceae4; color:var(--muted); white-space:nowrap; }
+  .verdict.pass { background:#e1f1e7; color:var(--ok); }
+  .verdict.fail { background:#fbe3e1; color:#b3261e; }
 </style>
 </head>
 <body>
@@ -47,12 +71,12 @@
   <div class="meta">
     <div><span>姓名：</span>張語真</div>
     <div><span>學號：</span>413210518</div>
-    <div><span>得分數：</span><span class="score">&nbsp;</span></div>
+    <div><span>得分數：</span><span class="score score-big"><span id="total">0</span> / 80</span></div>
   </div>
 </header>
 
 <section class="q" id="q1">
-  <h2>第 1 題</h2>
+  <h2>第 1 題<span class="pts">20 分</span></h2>
   <p class="prompt">輸出一個能做 1 加到 N 的 Fortran 程式。</p>
   <h3>答案</h3>
   <p>程式讀入 N 後，先用 <code>do</code> 迴圈逐項累加，再用公式 N(N+1)/2 驗算。總和使用 64 位元整數 <code>integer(kind=8)</code>，避免 N 較大時溢位。</p>
@@ -81,10 +105,18 @@
     write(*, &#x27;(A, I0)&#x27;) &#x27;公式 N(N+1)/2 驗算        = &#x27;, total
 
 end program sum_to_n</code></pre></figure>
+  
+  <div class="grader" id="g1">
+    <h4>任務達成評分（20 分）<span class="verdict" id="v1">尚未評分</span></h4>
+    <p class="hint">貼上 Fortran 原始碼，並輸入一組測試的 N 與程式輸出的總和。程式結構完整且總和正確即達標。</p>
+    <label for="q1code">Fortran 原始碼</label><textarea id="q1code" spellcheck="false"></textarea><div class="row3"><label for="q1n">測試 N</label><label for="q1out">程式輸出的總和</label><input id="q1n" inputmode="numeric"><input id="q1out" inputmode="numeric"></div>
+    <div class="btns"><button class="go" data-q="1">評分</button><button class="fill" data-fill="1">填入本次作答結果</button></div>
+    <ul class="checks" id="c1"></ul>
+  </div>
 </section>
 
 <section class="q" id="q2">
-  <h2>第 2 題</h2>
+  <h2>第 2 題<span class="pts">20 分</span></h2>
   <p class="prompt">執行 Fortran 程式進行三次隨機的驗證，以確定該程式功能的正確性。</p>
   <h3>答案</h3>
   <p>先用 Python 隨機產生三個 N，並以公式算出正確答案：</p>
@@ -113,10 +145,18 @@ $ ./sum_to_n
     <tr><td>109,763</td><td>6,024,012,966</td><td>6,024,012,966</td><td>6,024,012,966</td><td class="ok">✓</td></tr>
   </table>
   <p>三次結果皆與正確答案相符。三個總和都超過 32 位元整數上限（約 21 億），也證明程式沒有溢位問題。</p>
+  
+  <div class="grader" id="g2">
+    <h4>任務達成評分（20 分）<span class="verdict" id="v2">尚未評分</span></h4>
+    <p class="hint">輸入三組不同的隨機 N 與程式輸出的總和。三組皆等於 N(N+1)/2 即達標。</p>
+    <div class="row3"><label for="q2n1">第 1 組 N</label><label for="q2o1">程式輸出</label><input id="q2n1" inputmode="numeric"><input id="q2o1" inputmode="numeric"><label for="q2n2">第 2 組 N</label><label for="q2o2">程式輸出</label><input id="q2n2" inputmode="numeric"><input id="q2o2" inputmode="numeric"><label for="q2n3">第 3 組 N</label><label for="q2o3">程式輸出</label><input id="q2n3" inputmode="numeric"><input id="q2o3" inputmode="numeric"></div>
+    <div class="btns"><button class="go" data-q="2">評分</button><button class="fill" data-fill="2">填入本次作答結果</button></div>
+    <ul class="checks" id="c2"></ul>
+  </div>
 </section>
 
 <section class="q" id="q3">
-  <h2>第 3 題</h2>
+  <h2>第 3 題<span class="pts">20 分</span></h2>
   <p class="prompt">針對所開發的程式進行 Git 版本控制，將原版認錄（commit），之後針對原程式碼進行逐行註解並編譯驗證成功後，再次認錄為新版。</p>
   <h3>答案</h3>
   <p>操作步驟：</p>
@@ -182,10 +222,18 @@ program sum_to_n
 
 ! 結束主程式
 end program sum_to_n</code></pre></figure>
+  
+  <div class="grader" id="g3">
+    <h4>任務達成評分（20 分）<span class="verdict" id="v3">尚未評分</span></h4>
+    <p class="hint">貼上 git log --oneline 的輸出，以及加了逐行註解的新版程式碼。至少兩次認錄、新版程式碼的註解行數不少於程式碼行數即達標。</p>
+    <label for="q3log">git log --oneline 輸出</label><textarea id="q3log" spellcheck="false" style="min-height:70px"></textarea><label for="q3code">逐行註解後的程式碼</label><textarea id="q3code" spellcheck="false"></textarea>
+    <div class="btns"><button class="go" data-q="3">評分</button><button class="fill" data-fill="3">填入本次作答結果</button></div>
+    <ul class="checks" id="c3"></ul>
+  </div>
 </section>
 
 <section class="q" id="q4">
-  <h2>第 4 題</h2>
+  <h2>第 4 題<span class="pts">20 分</span></h2>
   <p class="prompt">將本地端已經進行版本控制的程式碼，傳送到 GitHub 做雲端儲存。</p>
   <h3>答案</h3>
   <p>雲端儲存庫：<a href="https://github.com/yuchen924/sum_to_n">https://github.com/yuchen924/sum_to_n</a></p>
@@ -219,8 +267,108 @@ $ git ls-remote origin
 a00f3a9aa766a425d0e0d978cad604362dfdab03  HEAD
 a00f3a9aa766a425d0e0d978cad604362dfdab03  refs/heads/main</code></pre></figure>
   <p>GitHub 上的認錄紀錄與本地完全相同（v1 <code>aef7f37</code>、v2 <code>a00f3a9</code>），本地 <code>main</code> 已與 <code>origin/main</code> 同步，版本歷史完整保存在雲端。</p>
+  
+  <div class="grader" id="g4">
+    <h4>任務達成評分（20 分）<span class="verdict" id="v4">尚未評分</span></h4>
+    <p class="hint">輸入 GitHub 儲存庫網址。系統會連線到 GitHub 確認儲存庫存在且有至少兩次認錄；若無法連線，可改貼 git push 的輸出。</p>
+    <label for="q4url">GitHub 儲存庫網址</label><input id="q4url" placeholder="https://github.com/帳號/儲存庫"><label for="q4push">git push 輸出（無法連線 GitHub 時使用）</label><textarea id="q4push" spellcheck="false" style="min-height:70px"></textarea>
+    <div class="btns"><button class="go" data-q="4">評分</button><button class="fill" data-fill="4">填入本次作答結果</button></div>
+    <ul class="checks" id="c4"></ul>
+  </div>
 </section>
 
 </div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const val = id => ($(id).value || "").trim();
+  const big = s => { s = String(s).replace(/[,\s_]/g, ""); return /^\d+$/.test(s) ? BigInt(s) : null; };
+  const tri = n => n * (n + 1n) / 2n;
+  const scores = {1:0, 2:0, 3:0, 4:0};
+
+  function show(q, checks, pass){
+    $("c"+q).innerHTML = checks.map(([ok, t]) => `<li class="${ok?"ok":"no"}">${t.replace(/</g,"&lt;")}</li>`).join("");
+    const v = $("v"+q);
+    v.className = "verdict " + (pass ? "pass" : "fail");
+    v.textContent = pass ? "達標 +20 分" : "未達標 0 分";
+    scores[q] = pass ? 20 : 0;
+    const total = Object.values(scores).reduce((a,b)=>a+b, 0);
+    $("total").textContent = total;
+    try { localStorage.setItem("midterm-scores", JSON.stringify(scores)); } catch(e) {}
+  }
+
+  const graders = {
+    1(){
+      const code = val("q1code"), n = big(val("q1n")), out = big(val("q1out"));
+      const c = [
+        [/\bprogram\s+\w+/i.test(code) && /\bend\s*program\b/i.test(code), "有完整的 program … end program 結構"],
+        [/\bread\s*\(/i.test(code), "會讀入使用者輸入的 N（read）"],
+        [/\bdo\s+\w+\s*=\s*1\s*,/i.test(code), "用 do 迴圈從 1 開始累加"],
+        [/integer\s*\(\s*(kind\s*=\s*)?8\s*\)|integer\*8|int64/i.test(code), "總和使用 64 位元整數，避免溢位"],
+        [n !== null && n >= 1n && out !== null && out === tri(n), n !== null && n >= 1n ? `N=${n} 時輸出應為 ${tri(n)}` : "輸入正整數 N 與輸出總和"],
+      ];
+      show(1, c, c.every(x=>x[0]));
+    },
+    2(){
+      const c = [], ns = [];
+      for (const i of [1,2,3]) {
+        const n = big(val("q2n"+i)), o = big(val("q2o"+i));
+        const ok = n !== null && n >= 1n && o !== null && o === tri(n);
+        if (n !== null) ns.push(String(n));
+        c.push([ok, n !== null && n >= 1n ? `第 ${i} 組：N=${n}，正確總和 ${tri(n)}` : `第 ${i} 組：請輸入正整數 N 與輸出`]);
+      }
+      c.push([ns.length === 3 && new Set(ns).size === 3, "三組 N 互不相同（隨機測試）"]);
+      show(2, c, c.every(x=>x[0]));
+    },
+    3(){
+      const lines = val("q3log").split("\n").map(s=>s.trim()).filter(Boolean);
+      const hashes = lines.map(l => (l.match(/^\*?\s*([0-9a-f]{7,40})\s+\S/i)||[])[1]).filter(Boolean);
+      const code = val("q3code").split("\n").map(s=>s.trim()).filter(Boolean);
+      const cmt = code.filter(l => l.startsWith("!")).length, stmt = code.length - cmt;
+      const c = [
+        [new Set(hashes).size >= 2, `git log 至少有兩次認錄（偵測到 ${new Set(hashes).size} 次）`],
+        [stmt > 0 && /\bprogram\b/i.test(val("q3code")), "有貼上新版程式碼"],
+        [stmt > 0 && cmt >= stmt, `逐行註解：註解 ${cmt} 行／程式碼 ${stmt} 行`],
+      ];
+      show(3, c, c.every(x=>x[0]));
+    },
+    async 4(){
+      const url = val("q4url"), m = url.match(/^https?:\/\/github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/i);
+      const push = val("q4push");
+      const c = [[!!m, "儲存庫網址格式正確（https://github.com/帳號/儲存庫）"]];
+      let remote = null;
+      if (m) {
+        $("v4").textContent = "連線 GitHub 中…";
+        try {
+          const r = await fetch(`https://api.github.com/repos/${m[1]}/${m[2]}/commits?per_page=10`);
+          if (r.ok) { const j = await r.json(); remote = Array.isArray(j) ? j.length : 0; }
+          else if (r.status === 404 || r.status === 409) remote = 0;
+        } catch(e) {}
+      }
+      if (remote !== null) {
+        c.push([remote >= 2, `GitHub 上的儲存庫存在，且有至少兩次認錄（目前 ${remote} 次）`]);
+      } else {
+        const pushed = /To https?:\/\/github\.com\/\S+/i.test(push) && /->\s*\S+/.test(push);
+        c.push([pushed, "無法連線 GitHub 驗證，改檢查 git push 輸出：已推送到 GitHub"]);
+      }
+      show(4, c, c.every(x=>x[0]));
+    },
+  };
+
+  const MINE = {
+    1: {q1code: document.querySelectorAll("#q1 pre code")[0].textContent, q1n: "100", q1out: "5050"},
+    2: {q2n1:"1366727", q2o1:"933972029628", q2n2:"1970810", q2o2:"1942047013455", q2n3:"109763", q2o3:"6024012966"},
+    3: {q3log: "a00f3a9 v2: 加入逐行中文註解\naef7f37 v1: 原版 1 加到 N 程式", q3code: [...document.querySelectorAll("#q3 pre code")].pop().textContent},
+    4: {q4url: "https://github.com/yuchen924/sum_to_n", q4push: "To https://github.com/yuchen924/sum_to_n\n * [new branch]      main -> main"},
+  };
+
+  document.querySelectorAll(".grader button.go").forEach(b => b.addEventListener("click", () => graders[b.dataset.q]()));
+  document.querySelectorAll(".grader button.fill").forEach(b => b.addEventListener("click", () => {
+    const q = b.dataset.fill; for (const [k, v] of Object.entries(MINE[q])) $(k).value = v; graders[q]();
+  }));
+})();
+</script>
+
 </body>
 </html>
