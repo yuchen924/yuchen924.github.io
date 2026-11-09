@@ -71,7 +71,7 @@
   <div class="meta">
     <div><span>姓名：</span>張語真</div>
     <div><span>學號：</span>413210518</div>
-    <div><span>得分數：</span><span class="score score-big"><span id="total">0</span> / 80</span></div>
+    <div><span>得分數：</span><span class="score score-big"><span id="total">0</span> / 100</span></div>
   </div>
 </header>
 
@@ -277,95 +277,235 @@ a00f3a9aa766a425d0e0d978cad604362dfdab03  refs/heads/main</code></pre></figure>
   </div>
 </section>
 
-</div>
+<section class="q" id="q5">
+  <h2>第 5 題<span class="pts">20 分</span></h2>
+  <p class="prompt">做一個任務達成評分系統，允許輸入前四題的結果，達標就給分，每題 20 分，並在每題後面標示配分。</p>
+  <h3>答案</h3>
+  <p>本頁每一題下方的「任務達成評分」區就是這個系統。輸入該題的結果後按「評分」，系統依規則逐項檢查，全部通過即給 20 分，頁首「得分數」即時加總（5 題共 100 分）。</p>
+  <table>
+    <tr><th>題目</th><th style="text-align:left">輸入</th><th style="text-align:left">達標條件</th></tr>
+    <tr><td style="text-align:center">1</td><td style="text-align:left">Fortran 原始碼＋一組 N 與輸出</td><td style="text-align:left">program 結構完整、讀入 N、do 迴圈累加、64 位元整數，且輸出 = N(N+1)/2</td></tr>
+    <tr><td style="text-align:center">2</td><td style="text-align:left">三組 N 與輸出</td><td style="text-align:left">三組皆正確，且 N 互不相同</td></tr>
+    <tr><td style="text-align:center">3</td><td style="text-align:left">git log 輸出＋註解版程式碼</td><td style="text-align:left">至少兩次認錄，註解行數 ≥ 程式碼行數</td></tr>
+    <tr><td style="text-align:center">4</td><td style="text-align:left">GitHub 儲存庫網址</td><td style="text-align:left">連線 GitHub 確認儲存庫存在且至少兩次認錄（離線時檢查 git push 輸出）</td></tr>
+    <tr><td style="text-align:center">5</td><td style="text-align:left">（自動）</td><td style="text-align:left">自我測試：第 1～4 題的正確答案皆達標、錯誤答案皆不達標，且每題標示 20 分</td></tr>
+  </table>
+  <p>評分系統程式碼（JavaScript，內嵌於本頁）：</p>
+  <figure class="code"><figcaption>grader.js</figcaption><pre><code>(function(){
+  const $ = id =&gt; document.getElementById(id);
+  const big = s =&gt; { s = String(s ?? &quot;&quot;).replace(/[,\s_]/g, &quot;&quot;); return /^\d+$/.test(s) ? BigInt(s) : null; };
+  const tri = n =&gt; n * (n + 1n) / 2n;
+  const QS = [1,2,3,4,5], PTS = 20;
+  const scores = {1:0, 2:0, 3:0, 4:0, 5:0};
 
-<script>
-(function(){
-  const $ = id => document.getElementById(id);
-  const val = id => ($(id).value || "").trim();
-  const big = s => { s = String(s).replace(/[,\s_]/g, ""); return /^\d+$/.test(s) ? BigInt(s) : null; };
-  const tri = n => n * (n + 1n) / 2n;
-  const scores = {1:0, 2:0, 3:0, 4:0};
-
-  function show(q, checks, pass){
-    $("c"+q).innerHTML = checks.map(([ok, t]) => `<li class="${ok?"ok":"no"}">${t.replace(/</g,"&lt;")}</li>`).join("");
-    const v = $("v"+q);
-    v.className = "verdict " + (pass ? "pass" : "fail");
-    v.textContent = pass ? "達標 +20 分" : "未達標 0 分";
-    scores[q] = pass ? 20 : 0;
-    const total = Object.values(scores).reduce((a,b)=>a+b, 0);
-    $("total").textContent = total;
-    try { localStorage.setItem("midterm-scores", JSON.stringify(scores)); } catch(e) {}
-  }
-
-  const graders = {
-    1(){
-      const code = val("q1code"), n = big(val("q1n")), out = big(val("q1out"));
-      const c = [
-        [/\bprogram\s+\w+/i.test(code) && /\bend\s*program\b/i.test(code), "有完整的 program … end program 結構"],
-        [/\bread\s*\(/i.test(code), "會讀入使用者輸入的 N（read）"],
-        [/\bdo\s+\w+\s*=\s*1\s*,/i.test(code), "用 do 迴圈從 1 開始累加"],
-        [/integer\s*\(\s*(kind\s*=\s*)?8\s*\)|integer\*8|int64/i.test(code), "總和使用 64 位元整數，避免溢位"],
-        [n !== null && n >= 1n && out !== null && out === tri(n), n !== null && n >= 1n ? `N=${n} 時輸出應為 ${tri(n)}` : "輸入正整數 N 與輸出總和"],
+  // ===== 各題評分規則：輸入資料 → [[是否通過, 說明], ...] =====
+  const RULES = {
+    1(d){
+      const code = d.q1code || &quot;&quot;, n = big(d.q1n), out = big(d.q1out);
+      return [
+        [/\bprogram\s+\w+/i.test(code) &amp;&amp; /\bend\s*program\b/i.test(code), &quot;有完整的 program … end program 結構&quot;],
+        [/\bread\s*\(/i.test(code), &quot;會讀入使用者輸入的 N（read）&quot;],
+        [/\bdo\s+\w+\s*=\s*1\s*,/i.test(code), &quot;用 do 迴圈從 1 開始累加&quot;],
+        [/integer\s*\(\s*(kind\s*=\s*)?8\s*\)|integer\*8|int64/i.test(code), &quot;總和使用 64 位元整數，避免溢位&quot;],
+        [n !== null &amp;&amp; n &gt;= 1n &amp;&amp; out === tri(n), n !== null &amp;&amp; n &gt;= 1n ? `N=${n} 時輸出應為 ${tri(n)}` : &quot;輸入正整數 N 與輸出總和&quot;],
       ];
-      show(1, c, c.every(x=>x[0]));
     },
-    2(){
+    2(d){
       const c = [], ns = [];
       for (const i of [1,2,3]) {
-        const n = big(val("q2n"+i)), o = big(val("q2o"+i));
-        const ok = n !== null && n >= 1n && o !== null && o === tri(n);
+        const n = big(d[&quot;q2n&quot;+i]), o = big(d[&quot;q2o&quot;+i]);
         if (n !== null) ns.push(String(n));
-        c.push([ok, n !== null && n >= 1n ? `第 ${i} 組：N=${n}，正確總和 ${tri(n)}` : `第 ${i} 組：請輸入正整數 N 與輸出`]);
+        c.push([n !== null &amp;&amp; n &gt;= 1n &amp;&amp; o === tri(n), n !== null &amp;&amp; n &gt;= 1n ? `第 ${i} 組：N=${n}，正確總和 ${tri(n)}` : `第 ${i} 組：請輸入正整數 N 與輸出`]);
       }
-      c.push([ns.length === 3 && new Set(ns).size === 3, "三組 N 互不相同（隨機測試）"]);
-      show(2, c, c.every(x=>x[0]));
+      c.push([ns.length === 3 &amp;&amp; new Set(ns).size === 3, &quot;三組 N 互不相同（隨機測試）&quot;]);
+      return c;
     },
-    3(){
-      const lines = val("q3log").split("\n").map(s=>s.trim()).filter(Boolean);
-      const hashes = lines.map(l => (l.match(/^\*?\s*([0-9a-f]{7,40})\s+\S/i)||[])[1]).filter(Boolean);
-      const code = val("q3code").split("\n").map(s=>s.trim()).filter(Boolean);
-      const cmt = code.filter(l => l.startsWith("!")).length, stmt = code.length - cmt;
-      const c = [
-        [new Set(hashes).size >= 2, `git log 至少有兩次認錄（偵測到 ${new Set(hashes).size} 次）`],
-        [stmt > 0 && /\bprogram\b/i.test(val("q3code")), "有貼上新版程式碼"],
-        [stmt > 0 && cmt >= stmt, `逐行註解：註解 ${cmt} 行／程式碼 ${stmt} 行`],
+    3(d){
+      const lines = (d.q3log || &quot;&quot;).split(&quot;\n&quot;).map(s=&gt;s.trim()).filter(Boolean);
+      const hashes = new Set(lines.map(l =&gt; (l.match(/^\*?\s*([0-9a-f]{7,40})\s+\S/i)||[])[1]).filter(Boolean));
+      const code = (d.q3code || &quot;&quot;).split(&quot;\n&quot;).map(s=&gt;s.trim()).filter(Boolean);
+      const cmt = code.filter(l =&gt; l.startsWith(&quot;!&quot;)).length, stmt = code.length - cmt;
+      return [
+        [hashes.size &gt;= 2, `git log 至少有兩次認錄（偵測到 ${hashes.size} 次）`],
+        [stmt &gt; 0 &amp;&amp; /\bprogram\b/i.test(d.q3code || &quot;&quot;), &quot;有貼上新版程式碼&quot;],
+        [stmt &gt; 0 &amp;&amp; cmt &gt;= stmt, `逐行註解：註解 ${cmt} 行／程式碼 ${stmt} 行`],
       ];
-      show(3, c, c.every(x=>x[0]));
     },
-    async 4(){
-      const url = val("q4url"), m = url.match(/^https?:\/\/github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/i);
-      const push = val("q4push");
-      const c = [[!!m, "儲存庫網址格式正確（https://github.com/帳號/儲存庫）"]];
+    async 4(d, offline){
+      const url = (d.q4url || &quot;&quot;).trim(), push = d.q4push || &quot;&quot;;
+      const m = url.match(/^https?:\/\/github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/i);
+      const c = [[!!m, &quot;儲存庫網址格式正確（https://github.com/帳號/儲存庫）&quot;]];
       let remote = null;
-      if (m) {
-        $("v4").textContent = "連線 GitHub 中…";
+      if (m &amp;&amp; !offline) {
         try {
           const r = await fetch(`https://api.github.com/repos/${m[1]}/${m[2]}/commits?per_page=10`);
           if (r.ok) { const j = await r.json(); remote = Array.isArray(j) ? j.length : 0; }
           else if (r.status === 404 || r.status === 409) remote = 0;
         } catch(e) {}
       }
-      if (remote !== null) {
-        c.push([remote >= 2, `GitHub 上的儲存庫存在，且有至少兩次認錄（目前 ${remote} 次）`]);
-      } else {
-        const pushed = /To https?:\/\/github\.com\/\S+/i.test(push) && /->\s*\S+/.test(push);
-        c.push([pushed, "無法連線 GitHub 驗證，改檢查 git push 輸出：已推送到 GitHub"]);
+      if (remote !== null) c.push([remote &gt;= 2, `GitHub 上的儲存庫存在，且有至少兩次認錄（目前 ${remote} 次）`]);
+      else c.push([/To https?:\/\/github\.com\/\S+/i.test(push) &amp;&amp; /-&gt;\s*\S+/.test(push), &quot;以 git push 輸出確認：已推送到 GitHub&quot;]);
+      return c;
+    },
+    async 5(){
+      const pass = async (q, d) =&gt; (await RULES[q](d, true)).every(x =&gt; x[0]);
+      const bad = {
+        1: {...MINE[1], q1out: &quot;5049&quot;},
+        2: {...MINE[2], q2n2: MINE[2].q2n1, q2o2: MINE[2].q2o1},
+        3: {...MINE[3], q3log: &quot;aef7f37 v1: 原版 1 加到 N 程式&quot;},
+        4: {q4url: &quot;github.com/沒有協定&quot;, q4push: &quot;&quot;},
+      };
+      const c = [];
+      for (const q of [1,2,3,4]) {
+        c.push([await pass(q, MINE[q]), `第 ${q} 題：正確答案判為達標`]);
+        c.push([!(await pass(q, bad[q])), `第 ${q} 題：錯誤答案判為不達標`]);
       }
-      show(4, c, c.every(x=>x[0]));
+      const tags = [...document.querySelectorAll(&quot;section.q h2 .pts&quot;)].map(e =&gt; e.textContent.trim());
+      c.push([tags.length === QS.length &amp;&amp; tags.every(t =&gt; t === PTS + &quot; 分&quot;), `每題標示 ${PTS} 分（共 ${tags.length} 題，滿分 ${tags.length * PTS}）`]);
+      return c;
     },
   };
 
+  // ===== 畫面：讀取輸入、顯示結果、加總分數 =====
+  const FIELDS = {1:[&quot;q1code&quot;,&quot;q1n&quot;,&quot;q1out&quot;], 2:[&quot;q2n1&quot;,&quot;q2o1&quot;,&quot;q2n2&quot;,&quot;q2o2&quot;,&quot;q2n3&quot;,&quot;q2o3&quot;], 3:[&quot;q3log&quot;,&quot;q3code&quot;], 4:[&quot;q4url&quot;,&quot;q4push&quot;], 5:[]};
+  const read = q =&gt; Object.fromEntries(FIELDS[q].map(k =&gt; [k, $(k).value]));
+
+  async function grade(q){
+    $(&quot;v&quot;+q).className = &quot;verdict&quot;; $(&quot;v&quot;+q).textContent = &quot;評分中…&quot;;
+    const checks = await RULES[q](read(q), false);
+    const ok = checks.every(x =&gt; x[0]);
+    $(&quot;c&quot;+q).innerHTML = checks.map(([p, t]) =&gt; `&lt;li class=&quot;${p?&quot;ok&quot;:&quot;no&quot;}&quot;&gt;${t.replace(/&lt;/g,&quot;&amp;lt;&quot;)}&lt;/li&gt;`).join(&quot;&quot;);
+    $(&quot;v&quot;+q).className = &quot;verdict &quot; + (ok ? &quot;pass&quot; : &quot;fail&quot;);
+    $(&quot;v&quot;+q).textContent = ok ? `達標 +${PTS} 分` : &quot;未達標 0 分&quot;;
+    scores[q] = ok ? PTS : 0;
+    $(&quot;total&quot;).textContent = Object.values(scores).reduce((a,b)=&gt;a+b, 0);
+  }
+
   const MINE = {
-    1: {q1code: document.querySelectorAll("#q1 pre code")[0].textContent, q1n: "100", q1out: "5050"},
+    1: {q1code: document.querySelector(&quot;#q1 pre code&quot;).textContent, q1n: &quot;100&quot;, q1out: &quot;5050&quot;},
+    2: {q2n1:&quot;1366727&quot;, q2o1:&quot;933972029628&quot;, q2n2:&quot;1970810&quot;, q2o2:&quot;1942047013455&quot;, q2n3:&quot;109763&quot;, q2o3:&quot;6024012966&quot;},
+    3: {q3log: &quot;a00f3a9 v2: 加入逐行中文註解\naef7f37 v1: 原版 1 加到 N 程式&quot;, q3code: [...document.querySelectorAll(&quot;#q3 pre code&quot;)].pop().textContent},
+    4: {q4url: &quot;https://github.com/yuchen924/sum_to_n&quot;, q4push: &quot;To https://github.com/yuchen924/sum_to_n\n * [new branch]      main -&gt; main&quot;},
+  };
+
+  document.querySelectorAll(&quot;.grader button.go&quot;).forEach(b =&gt; b.addEventListener(&quot;click&quot;, () =&gt; grade(+b.dataset.q)));
+  document.querySelectorAll(&quot;.grader button.fill&quot;).forEach(b =&gt; b.addEventListener(&quot;click&quot;, () =&gt; {
+    const q = +b.dataset.fill; for (const [k, v] of Object.entries(MINE[q])) $(k).value = v; grade(q);
+  }));
+})();</code></pre></figure>
+  
+  <div class="grader" id="g5">
+    <h4>任務達成評分（20 分）<span class="verdict" id="v5">尚未評分</span></h4>
+    <p class="hint">按「評分」執行自我測試：用正確與錯誤的測試資料逐一檢驗第 1～4 題的評分邏輯，並確認每題都標有 20 分。全部通過即達標。</p>
+    <label>自我測試範圍</label><p class="hint" style="margin:0">第 1～4 題各一組正確答案（應達標）與一組錯誤答案（應不達標），共 8 個測試案例，以及題號旁的配分標示。</p>
+    <div class="btns"><button class="go" data-q="5">評分</button></div>
+    <ul class="checks" id="c5"></ul>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const big = s => { s = String(s ?? "").replace(/[,\s_]/g, ""); return /^\d+$/.test(s) ? BigInt(s) : null; };
+  const tri = n => n * (n + 1n) / 2n;
+  const QS = [1,2,3,4,5], PTS = 20;
+  const scores = {1:0, 2:0, 3:0, 4:0, 5:0};
+
+  // ===== 各題評分規則：輸入資料 → [[是否通過, 說明], ...] =====
+  const RULES = {
+    1(d){
+      const code = d.q1code || "", n = big(d.q1n), out = big(d.q1out);
+      return [
+        [/\bprogram\s+\w+/i.test(code) && /\bend\s*program\b/i.test(code), "有完整的 program … end program 結構"],
+        [/\bread\s*\(/i.test(code), "會讀入使用者輸入的 N（read）"],
+        [/\bdo\s+\w+\s*=\s*1\s*,/i.test(code), "用 do 迴圈從 1 開始累加"],
+        [/integer\s*\(\s*(kind\s*=\s*)?8\s*\)|integer\*8|int64/i.test(code), "總和使用 64 位元整數，避免溢位"],
+        [n !== null && n >= 1n && out === tri(n), n !== null && n >= 1n ? `N=${n} 時輸出應為 ${tri(n)}` : "輸入正整數 N 與輸出總和"],
+      ];
+    },
+    2(d){
+      const c = [], ns = [];
+      for (const i of [1,2,3]) {
+        const n = big(d["q2n"+i]), o = big(d["q2o"+i]);
+        if (n !== null) ns.push(String(n));
+        c.push([n !== null && n >= 1n && o === tri(n), n !== null && n >= 1n ? `第 ${i} 組：N=${n}，正確總和 ${tri(n)}` : `第 ${i} 組：請輸入正整數 N 與輸出`]);
+      }
+      c.push([ns.length === 3 && new Set(ns).size === 3, "三組 N 互不相同（隨機測試）"]);
+      return c;
+    },
+    3(d){
+      const lines = (d.q3log || "").split("\n").map(s=>s.trim()).filter(Boolean);
+      const hashes = new Set(lines.map(l => (l.match(/^\*?\s*([0-9a-f]{7,40})\s+\S/i)||[])[1]).filter(Boolean));
+      const code = (d.q3code || "").split("\n").map(s=>s.trim()).filter(Boolean);
+      const cmt = code.filter(l => l.startsWith("!")).length, stmt = code.length - cmt;
+      return [
+        [hashes.size >= 2, `git log 至少有兩次認錄（偵測到 ${hashes.size} 次）`],
+        [stmt > 0 && /\bprogram\b/i.test(d.q3code || ""), "有貼上新版程式碼"],
+        [stmt > 0 && cmt >= stmt, `逐行註解：註解 ${cmt} 行／程式碼 ${stmt} 行`],
+      ];
+    },
+    async 4(d, offline){
+      const url = (d.q4url || "").trim(), push = d.q4push || "";
+      const m = url.match(/^https?:\/\/github\.com\/([\w.-]+)\/([\w.-]+?)(?:\.git)?\/?$/i);
+      const c = [[!!m, "儲存庫網址格式正確（https://github.com/帳號/儲存庫）"]];
+      let remote = null;
+      if (m && !offline) {
+        try {
+          const r = await fetch(`https://api.github.com/repos/${m[1]}/${m[2]}/commits?per_page=10`);
+          if (r.ok) { const j = await r.json(); remote = Array.isArray(j) ? j.length : 0; }
+          else if (r.status === 404 || r.status === 409) remote = 0;
+        } catch(e) {}
+      }
+      if (remote !== null) c.push([remote >= 2, `GitHub 上的儲存庫存在，且有至少兩次認錄（目前 ${remote} 次）`]);
+      else c.push([/To https?:\/\/github\.com\/\S+/i.test(push) && /->\s*\S+/.test(push), "以 git push 輸出確認：已推送到 GitHub"]);
+      return c;
+    },
+    async 5(){
+      const pass = async (q, d) => (await RULES[q](d, true)).every(x => x[0]);
+      const bad = {
+        1: {...MINE[1], q1out: "5049"},
+        2: {...MINE[2], q2n2: MINE[2].q2n1, q2o2: MINE[2].q2o1},
+        3: {...MINE[3], q3log: "aef7f37 v1: 原版 1 加到 N 程式"},
+        4: {q4url: "github.com/沒有協定", q4push: ""},
+      };
+      const c = [];
+      for (const q of [1,2,3,4]) {
+        c.push([await pass(q, MINE[q]), `第 ${q} 題：正確答案判為達標`]);
+        c.push([!(await pass(q, bad[q])), `第 ${q} 題：錯誤答案判為不達標`]);
+      }
+      const tags = [...document.querySelectorAll("section.q h2 .pts")].map(e => e.textContent.trim());
+      c.push([tags.length === QS.length && tags.every(t => t === PTS + " 分"), `每題標示 ${PTS} 分（共 ${tags.length} 題，滿分 ${tags.length * PTS}）`]);
+      return c;
+    },
+  };
+
+  // ===== 畫面：讀取輸入、顯示結果、加總分數 =====
+  const FIELDS = {1:["q1code","q1n","q1out"], 2:["q2n1","q2o1","q2n2","q2o2","q2n3","q2o3"], 3:["q3log","q3code"], 4:["q4url","q4push"], 5:[]};
+  const read = q => Object.fromEntries(FIELDS[q].map(k => [k, $(k).value]));
+
+  async function grade(q){
+    $("v"+q).className = "verdict"; $("v"+q).textContent = "評分中…";
+    const checks = await RULES[q](read(q), false);
+    const ok = checks.every(x => x[0]);
+    $("c"+q).innerHTML = checks.map(([p, t]) => `<li class="${p?"ok":"no"}">${t.replace(/</g,"&lt;")}</li>`).join("");
+    $("v"+q).className = "verdict " + (ok ? "pass" : "fail");
+    $("v"+q).textContent = ok ? `達標 +${PTS} 分` : "未達標 0 分";
+    scores[q] = ok ? PTS : 0;
+    $("total").textContent = Object.values(scores).reduce((a,b)=>a+b, 0);
+  }
+
+  const MINE = {
+    1: {q1code: document.querySelector("#q1 pre code").textContent, q1n: "100", q1out: "5050"},
     2: {q2n1:"1366727", q2o1:"933972029628", q2n2:"1970810", q2o2:"1942047013455", q2n3:"109763", q2o3:"6024012966"},
     3: {q3log: "a00f3a9 v2: 加入逐行中文註解\naef7f37 v1: 原版 1 加到 N 程式", q3code: [...document.querySelectorAll("#q3 pre code")].pop().textContent},
     4: {q4url: "https://github.com/yuchen924/sum_to_n", q4push: "To https://github.com/yuchen924/sum_to_n\n * [new branch]      main -> main"},
   };
 
-  document.querySelectorAll(".grader button.go").forEach(b => b.addEventListener("click", () => graders[b.dataset.q]()));
+  document.querySelectorAll(".grader button.go").forEach(b => b.addEventListener("click", () => grade(+b.dataset.q)));
   document.querySelectorAll(".grader button.fill").forEach(b => b.addEventListener("click", () => {
-    const q = b.dataset.fill; for (const [k, v] of Object.entries(MINE[q])) $(k).value = v; graders[q]();
+    const q = +b.dataset.fill; for (const [k, v] of Object.entries(MINE[q])) $(k).value = v; grade(q);
   }));
 })();
 </script>
